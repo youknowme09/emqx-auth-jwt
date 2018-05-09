@@ -26,16 +26,18 @@
 
 -export([init/1]).
 
+-behaviour(emqx_services).
+
+-export([create/2, destroy/0, description/0]).
+
 -define(APP, emqx_auth_jwt).
 
 start(_Type, _Args) ->
-    emqx_access_control:register_mod(auth, ?APP, auth_env()),
-    emqx_auth_jwt_cfg:register(),
+    ok = emqx_services:register(?APP, auth, []),
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 stop(_State) ->
-    emqx_access_control:unregister_mod(auth, ?APP),
-    emqx_auth_jwt_cfg:unregister().
+    ok.
 
 %%--------------------------------------------------------------------
 %% Dummy Supervisor
@@ -45,16 +47,26 @@ init([]) ->
     {ok, { {one_for_all, 1, 10}, []} }.
 
 %%--------------------------------------------------------------------
+%% emqx_services callbacks
+%%--------------------------------------------------------------------
+
+create(Conf, _Env) ->
+    AuthEnv = #{secret => proplists:get_value(secret, Conf, undefined),
+                pubkey => read_pubkey(proplists:get_value(pubkey, Conf))},
+    ok = emqx_access_control:register_mod(auth, ?APP, AuthEnv),
+    emqx_auth_jwt_cfg:register().
+
+destroy() ->
+    emqx_access_control:unregister_mod(auth, ?APP),
+    emqx_auth_jwt_cfg:unregister().
+
+description() -> "Auth Plugin with JWT".
+
+%%--------------------------------------------------------------------
 %% Internal functions
 %%--------------------------------------------------------------------
 
-auth_env() ->
-    #{secret => get_env(?APP, secret, undefined), pubkey => read_pubkey()}.
+read_pubkey(undefined)  -> undefined;
 
-read_pubkey() ->
-    case get_env(?APP, pubkey) of
-        undefined  -> undefined;
-        {ok, Path} -> {ok, PubKey} = file:read_file(Path),
-                      PubKey
-    end.
+read_pubkey({ok, Path}) -> {ok, PubKey} = file:read_file(Path), PubKey.
 
