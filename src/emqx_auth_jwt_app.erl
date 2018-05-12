@@ -58,7 +58,7 @@ create(Conf, _Env) ->
 
 destroy() ->
     emqx_access_control:unregister_mod(auth, ?APP),
-    emqx_auth_jwt_cfg:unregister().
+    emqx_auth_jwt_cfg:unregister(), ok.
 
 description() -> "Auth Plugin with JWT".
 
