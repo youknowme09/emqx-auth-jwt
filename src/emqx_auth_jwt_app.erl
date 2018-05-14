@@ -28,7 +28,7 @@
 
 -behaviour(emqx_services).
 
--export([create/2, destroy/0, description/0]).
+-export([create/2, destroy/1, description/0]).
 
 -define(APP, emqx_auth_jwt).
 
@@ -56,7 +56,7 @@ create(Conf, _Env) ->
     ok = emqx_access_control:register_mod(auth, ?APP, AuthEnv),
     emqx_auth_jwt_cfg:register().
 
-destroy() ->
+destroy(_Conf) ->
     emqx_access_control:unregister_mod(auth, ?APP),
     emqx_auth_jwt_cfg:unregister(), ok.
 
