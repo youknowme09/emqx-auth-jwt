@@ -28,7 +28,7 @@
 
 -behaviour(emqx_services).
 
--export([create/2, destroy/1, description/0]).
+-export([create/2, destroy/1, available_deps/1, description/0]).
 
 -define(APP, emqx_auth_jwt).
 
@@ -59,6 +59,8 @@ create(Conf, _Env) ->
 destroy(_Conf) ->
     emqx_access_control:unregister_mod(auth, ?APP),
     emqx_auth_jwt_cfg:unregister(), ok.
+
+available_deps(_) -> [].
 
 description() -> "Auth Plugin with JWT".
 
