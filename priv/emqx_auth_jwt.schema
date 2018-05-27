@@ -2,12 +2,12 @@
 %% JWT Auth Plugin
 %%-------------------------------------------------------------------
 
-%% HMAC hash Secret
+%% @doc HMAC算法模式的密钥
 {mapping, "auth.jwt.secret", "emqx_auth_jwt.secret", [
   {datatype, string}
 ]}.
 
-%% RSA or ECDSA public key file
+%% @doc RSA/ECDSA模式下的证书文件路径
 {mapping, "auth.jwt.pubkey", "emqx_auth_jwt.pubkey", [
   {datatype, string}
 ]}.
