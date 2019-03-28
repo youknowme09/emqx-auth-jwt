@@ -20,6 +20,8 @@
 -export([check/2, description/0]).
 
 check(Credentials, Env = #{from := From}) ->
+    logger:info("in emqx-auth-jwt check"),
+    logger:info(Credentials),   
     case maps:find(From, Credentials) of
         error -> {ok, Credentials#{auth_result => token_undefined}};
         {ok, Token} ->
